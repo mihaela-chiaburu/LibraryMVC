@@ -1,4 +1,4 @@
-namespace LibWeb.Models
+namespace Lib.Models
 {
     public class ErrorViewModel
     {

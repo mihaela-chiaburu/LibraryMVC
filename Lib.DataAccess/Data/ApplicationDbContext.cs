@@ -1,7 +1,7 @@
-﻿using LibWeb.Models;
+﻿using Lib.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibWeb.Data
+namespace Lib.DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {

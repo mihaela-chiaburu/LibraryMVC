@@ -1,5 +1,5 @@
-﻿using LibWeb.Data;
-using LibWeb.Models;
+﻿using Lib.DataAccess.Data;
+using Lib.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibWeb.Controllers
