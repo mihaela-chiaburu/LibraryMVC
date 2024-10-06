@@ -3,8 +3,9 @@ using Lib.DataAccess.Repository.IRepository;
 using Lib.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LibWeb.Controllers
+namespace LibWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -39,12 +40,12 @@ namespace LibWeb.Controllers
                 TempData["success"] = "Category created successfuly";
                 return RedirectToAction("Index");
             }
-            return View(); 
+            return View();
         }
 
         public IActionResult Edit(int? id)
         {
-            if(id == null || id==0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
