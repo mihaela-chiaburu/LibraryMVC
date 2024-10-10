@@ -1,11 +1,14 @@
 ﻿using Lib.DataAccess.Data;
 using Lib.DataAccess.Repository.IRepository;
 using Lib.Models;
+using Lib.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_Admin)]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
