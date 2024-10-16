@@ -1,6 +1,8 @@
 ﻿using Lib.DataAccess.Repository.IRepository;
 using Lib.Models;
+using Lib.Models.ViewModels;
 using Lib.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics;
@@ -11,6 +13,8 @@ namespace LibWeb.Areas.Admin.Controllers
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _unitOfWork;
+        [BindProperty]
+        public OrderVM OrderVM { get; set; }
         public OrderController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -19,10 +23,45 @@ namespace LibWeb.Areas.Admin.Controllers
 		{
 			return View();
 		}
+        public IActionResult Details(int orderId)
+        {
+            OrderVM = new()
+            {
+                OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
+                OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
+            };
+            return View(OrderVM);
+        }
 
-		#region API CALLS
+        [HttpPost]
+        [Authorize(Roles =SD.Role_Admin+","+SD.Role_Employee)]
+        public IActionResult UpdateOrderDetail(int orderId)
+        {
+            var orderHeaderFromDb = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
+            orderHeaderFromDb.Name = OrderVM.OrderHeader.Name;
+            orderHeaderFromDb.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
+            orderHeaderFromDb.StreetAddress = OrderVM.OrderHeader.StreetAddress;
+            orderHeaderFromDb.City = OrderVM.OrderHeader.City;
+            orderHeaderFromDb.State = OrderVM.OrderHeader.State;
+            orderHeaderFromDb.PostalCode = OrderVM.OrderHeader.PostalCode;
+            if (!string.IsNullOrEmpty(OrderVM.OrderHeader.Carrier))
+            {
+                orderHeaderFromDb.Carrier = OrderVM.OrderHeader.Carrier;
+            }
+            if (!string.IsNullOrEmpty(OrderVM.OrderHeader.TrackingNumber))
+            {
+                orderHeaderFromDb.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
+            }
+            _unitOfWork.OrderHeader.Update(orderHeaderFromDb);
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Details Updated Successfully.";
 
-		[HttpGet]
+            return RedirectToAction(nameof(Details), new {orderId=orderHeaderFromDb.Id});
+        }
+
+        #region API CALLS
+
+        [HttpGet]
 		public IActionResult GetAll(string status)
 		{
 			IEnumerable<OrderHeader> objOrderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList();
